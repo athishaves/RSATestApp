@@ -36,4 +36,5 @@ dependencies {
     // analytics
     implementation 'com.google.firebase:firebase-analytics:17.3.0'
     // firebase
+    implementation 'com.google.firebase:firebase-database:19.2.1'
 }

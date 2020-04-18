@@ -10,7 +10,7 @@
     <ListView
         android:id="@+id/keys"
         android:layout_width="match_parent"
-        android:layout_height="50dp" />
+        android:layout_height="250dp" />
 
     <EditText
         android:id="@+id/text"
@@ -21,37 +21,16 @@
         android:hint="@string/message"
         />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:onClick="sendButton"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/send"
-            />
-
-        <Button
-            android:onClick="refreshButton"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/refresh"
-            />
-
-    </LinearLayout>
-
-    <EditText
-        android:id="@+id/encDecText"
-        android:layout_width="match_parent"
+    <Button
+        android:onClick="sendButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/send"
         />
 
     <ListView
         android:id="@+id/messages"
         android:layout_width="match_parent"
-        android:layout_height="50dp" />
+        android:layout_height="250dp" />
 
 </LinearLayout>
