@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "901737031699",
+    "firebase_url": "https://rsatestapp.firebaseio.com",
+    "project_id": "rsatestapp",
+    "storage_bucket": "rsatestapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901737031699:android:d1fe6002fcf5da8e6cf7e6",
+        "android_client_info": {
+          "package_name": "com.athish_works.rsatestapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "901737031699-mv7o86hk4foj0etot0upojps86c5d22t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQH2crN43n7tC0RNIJONfERvRS2-cLqUw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "901737031699-mv7o86hk4foj0etot0upojps86c5d22t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
