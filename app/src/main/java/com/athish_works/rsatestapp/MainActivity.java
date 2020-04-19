@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     String encryptedMessage = ds.child("message").getValue().toString();
-                    Log.i("Encrypt", encryptedMessage + "\n" + "Size = " + encryptedMessage.length());
-                    messagesList.add(decryptMessage(encryptedMessage));
+                    Log.i("Encrypt", "Encrypt Size = " + encryptedMessage.length());
+                    messagesList.add(decryptMessage(new BigInteger(encryptedMessage)));
                 }
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
@@ -249,11 +249,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public String decryptMessage(String gotMessage) {
+    public String decryptMessage(BigInteger gotMessage) {
         String privateKey = getPrivateKey();
 
         try {
-            byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.getBytes(), privateKey);
+            byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.toByteArray(), privateKey);
             String data = new String(decodeData);
             Log.i("Keys", data);
             return data;
