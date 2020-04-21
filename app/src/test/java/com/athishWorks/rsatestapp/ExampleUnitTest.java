@@ -1,4 +1,4 @@
-package com.athish_works.rsatestapp;
+package com.athishWorks.rsatestapp;
 
 import org.junit.Test;
 

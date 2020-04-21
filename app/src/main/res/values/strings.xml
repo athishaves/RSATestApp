@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">RsaTestApp</string>
+
     <string name="message">Message</string>
     <string name="refresh">Refresh</string>
     <string name="send">Send</string>
+
     <string name="enter_your_name">Enter your name</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+    <string name="have_an_account_then_sign_in">Have an account already? Then Sign In</string>
+
+    <string name="have_an_account_then_sign_up">New here? Then Sign Up</string>
+
+    <string name="log_out">Log Out</string>
+
 </resources>

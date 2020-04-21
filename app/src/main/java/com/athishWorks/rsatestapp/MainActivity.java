@@ -1,47 +1,41 @@
-package com.athish_works.rsatestapp;
+package com.athishWorks.rsatestapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> publicKeysList;
     ArrayList<String> namesList;
     ArrayList<String> messagesList;
+
+    ArrayAdapter<String> keyAdapter, messageAdapter;
 
     int index;
 
@@ -67,10 +63,18 @@ public class MainActivity extends AppCompatActivity {
 
     DatabaseReference databaseReference, databaseReferenceMessage;
 
-    String myName;
+    private String AES = "AES";
 
+    public native String helloWorld();
+
+    static {
+        System.loadLibrary("ndktest");
+    }
 
     private void declareVariables() {
+
+        Log.i("Success", "Got text " + helloWorld());
+
         keys = findViewById(R.id.keys);
         messages = findViewById(R.id.messages);
         message = findViewById(R.id.text);
@@ -85,12 +89,22 @@ public class MainActivity extends AppCompatActivity {
         messagesList = new ArrayList<>();
         index = -1;
 
+        keyAdapter = new ArrayAdapter<>(getApplicationContext(),
+                android.R.layout.simple_list_item_1, namesList);
+        keys.setAdapter(keyAdapter);
+
+        messageAdapter = new ArrayAdapter<>(getApplicationContext(),
+                android.R.layout.simple_list_item_1, messagesList);
+        messages.setAdapter(messageAdapter);
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FirebaseApp.initializeApp(this);
 
         declareVariables();
 
@@ -103,19 +117,57 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("Keys", "Here");
 
-        if (pubKey.equals("") || priKey.equals("")) {
-            askName();
-
-        } else {
-            publicKey = pubKey;
-            Log.i("Keys", "Public Key = " + publicKey);
-            privateKey = priKey;
-            Log.i("Keys", "Private Key = " + privateKey);
-        }
+        publicKey = pubKey;
+        Log.i("DSA", "Public Key = " + publicKey);
+        privateKey = priKey;
+        Log.i("DSA", "Encoded Private Key = " + privateKey);
 
         forKeyListView();
         forMessagesListView();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        switch (item.getItemId()) {
+            case R.id.sign_in_menu:
+                if (mAuth.getCurrentUser()!=null) {
+                    callAToast("Log out first!!");
+                } else {
+                    startActivity(new Intent(MainActivity.this, SignIn.class));
+                    finish();
+                }
+                break;
+            case R.id.sign_up_menu:
+                if (mAuth.getCurrentUser()!=null) {
+                    callAToast("Log out first!!");
+                } else {
+                    startActivity(new Intent(MainActivity.this, SignUp.class));
+                    finish();
+                }
+                break;
+            case R.id.log_out_menu:
+                if (mAuth.getCurrentUser()!=null) {
+                    mAuth.signOut();
+                }
+                SharedPreferences keysSp = getSharedPreferences(KEYS, MODE_PRIVATE);
+                SharedPreferences.Editor editor = keysSp.edit();
+                editor.clear();
+                if (editor.commit()) {
+                    startActivity(new Intent(MainActivity.this, SignUp.class));
+                    finish();
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void forKeyListView() {
@@ -131,13 +183,11 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Log.i("Keys", "Keys DataSnapshot Child " + ds);
-                    publicKeysList.add(ds.child("key").getValue().toString());
+                    Log.i("DS", "ds" + ds);
+                    publicKeysList.add(ds.child("pubKey").getValue().toString());
                     namesList.add(ds.child("name").getValue().toString());
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1, namesList);
-                keys.setAdapter(adapter);
+                keyAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -165,13 +215,9 @@ public class MainActivity extends AppCompatActivity {
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     String encryptedMessage = ds.child("message").getValue().toString();
-                    Log.i("Encrypt", "Encrypt Size = " + encryptedMessage.length());
                     messagesList.add(decryptMessage(new BigInteger(encryptedMessage)));
                 }
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1, messagesList);
-                messages.setAdapter(adapter);
+                messageAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -186,74 +232,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), a, Toast.LENGTH_SHORT).show();
     }
 
-    private void askName() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final View customLayout = getLayoutInflater().inflate(R.layout.edit_text_alert_dialog, null);
-
-        builder
-                .setView(customLayout)
-                .setTitle("")
-                .setMessage("Enter your name")
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        callAToast("You should have had entered your name");
-                        finish();
-                    }
-                })
-                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        callAToast("Thanks for the submission");
-                        EditText editText = customLayout.findViewById(R.id.alert_edit_text);
-                        myName = editText.getText().toString();
-                        if (myName.equals("")) {
-                            callAToast("Please enter the name");
-                            finish();
-                        } else {
-                            firstTime();
-                        }
-
-                    }
-                })
-        .setCancelable(false);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        Log.i("Keys", "Cleared here");
-    }
-
-    private void firstTime() {
-        Log.i("Keys", "First Time");
-        try {
-            Map<String, Object> keyMap = RSAAlgorithm.initKey();
-            SharedPreferences.Editor editor = keysSp.edit();
-
-            publicKey = RSAAlgorithm.getPublicKey(keyMap);
-            editor.putString(PUBLIC_SP, publicKey);
-
-            Log.i("Keys", "Here first time public key");
-
-            privateKey = RSAAlgorithm.getPrivateKey(keyMap);
-            editor.putString(PRIVATE_SP, privateKey);
-
-            Log.i("Keys", "Here first time private key");
-
-            editor.apply();
-
-            String id = databaseReference.push().getKey();
-            databaseReference.child(id).child("key").setValue(publicKey);
-            databaseReference.child(id).child("name").setValue(myName);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public String decryptMessage(BigInteger gotMessage) {
         String privateKey = getPrivateKey();
 
         try {
-            byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.toByteArray(), privateKey);
+            byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.toByteArray(), decrypt(privateKey, "helloWorld"));
+            Log.i("DSA", decrypt(privateKey, "helloWorld"));
             String data = new String(decodeData);
             Log.i("Keys", data);
             return data;
@@ -295,5 +279,22 @@ public class MainActivity extends AppCompatActivity {
         return privateKey;
     }
 
+
+    private String decrypt(String data, String password) throws Exception {
+        SecretKeySpec key = generateKey(password);
+        Cipher c = Cipher.getInstance(AES);
+        c.init(Cipher.DECRYPT_MODE, key);
+        byte[] decVal = Base64.decode(data, Base64.DEFAULT);
+        byte[] decValue = c.doFinal(decVal);
+        return new String(decValue);
+    }
+
+    private SecretKeySpec generateKey(String password) throws Exception {
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] bytes = password.getBytes(StandardCharsets.UTF_8);
+        digest.update(bytes, 0, bytes.length);
+        byte[] key = digest.digest();
+        return new SecretKeySpec(key, AES);
+    }
 
 }

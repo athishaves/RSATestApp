@@ -1,4 +1,4 @@
-package com.athish_works.rsatestapp;
+package com.athishWorks.rsatestapp;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.athish_works.rsatestapp", appContext.getPackageName());
+        assertEquals("com.athishWorks.rsatestapp", appContext.getPackageName());
     }
 }

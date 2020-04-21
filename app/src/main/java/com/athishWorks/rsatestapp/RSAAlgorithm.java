@@ -1,4 +1,4 @@
-package com.athish_works.rsatestapp;
+package com.athishWorks.rsatestapp;
 
 import android.util.Base64;
 
@@ -6,9 +6,6 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;

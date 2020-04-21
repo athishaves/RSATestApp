@@ -10,7 +10,13 @@
     <ListView
         android:id="@+id/keys"
         android:layout_width="match_parent"
-        android:layout_height="250dp" />
+        android:layout_height="200dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 
     <EditText
         android:id="@+id/text"
@@ -31,6 +37,7 @@
     <ListView
         android:id="@+id/messages"
         android:layout_width="match_parent"
-        android:layout_height="250dp" />
+        android:dividerHeight="5dp"
+        android:layout_height="350dp" />
 
 </LinearLayout>
