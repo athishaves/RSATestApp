@@ -23,7 +23,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.PublicKey;
 import java.util.Map;
 
 import javax.crypto.Cipher;
@@ -40,6 +39,14 @@ public class SignUp extends AppCompatActivity {
     private final String KEYS = "Keys";
     private final String PUBLIC_SP = "Public Key";
     private final String PRIVATE_SP = "Private Key";
+
+
+    public native String helloWorld();
+
+    static {
+        System.loadLibrary("ndktest");
+    }
+
 
     private void declarations() {
 
@@ -117,27 +124,27 @@ public class SignUp extends AppCompatActivity {
                                         reference.child(username).child("name").setValue(name);
                                         reference.child(username).child("pubKey").setValue(publicKey);
                                         reference.child(username).child("priKey").setValue(privateKey);
+
+                                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                        UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(name)
+                                                .build();
+                                        user.updateProfile(profile)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        callAToast("User registered successfully");
+                                                        callAToast("Welcome " + name);
+                                                        startActivity(new Intent(SignUp.this, MainActivity.class));
+                                                        finish();
+                                                    }
+                                                });
                                     }
 
                                 } catch (Exception e) {
                                     callAToast("Private Public keys aren't updated");
                                     e.printStackTrace();
                                 }
-
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
-                                        .setDisplayName(name)
-                                        .build();
-                                user.updateProfile(profile)
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                callAToast("User registered successfully");
-                                                callAToast("Welcome " + name);
-                                                startActivity(new Intent(SignUp.this, MainActivity.class));
-                                                finish();
-                                            }
-                                        });
 
                             } else {
                                 callAToast(task.getException().getMessage());

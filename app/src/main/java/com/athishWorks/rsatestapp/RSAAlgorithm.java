@@ -81,7 +81,7 @@ public class RSAAlgorithm {
     public static Map<String, Object> initKey() throws Exception {
         KeyPairGenerator keyPairGen = KeyPairGenerator
                 .getInstance(KEY_ALGORITHM);
-        keyPairGen.initialize(4096);
+        keyPairGen.initialize(2048);
 
         KeyPair keyPair = keyPairGen.generateKeyPair();
 

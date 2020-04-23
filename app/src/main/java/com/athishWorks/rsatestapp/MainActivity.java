@@ -3,8 +3,6 @@ package com.athishWorks.rsatestapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -32,7 +30,6 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -73,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void declareVariables() {
 
-        Log.i("Success", "Got text " + helloWorld());
+        Log.i("Success", "Main Activity " + helloWorld().getBytes().length);
 
         keys = findViewById(R.id.keys);
         messages = findViewById(R.id.messages);
@@ -121,6 +118,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i("DSA", "Public Key = " + publicKey);
         privateKey = priKey;
         Log.i("DSA", "Encoded Private Key = " + privateKey);
+        try {
+            Log.i("DSA", "Decoded Private Key = " + decrypt(privateKey, "helloWorld"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         forKeyListView();
         forMessagesListView();
@@ -138,22 +140,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         switch (item.getItemId()) {
-            case R.id.sign_in_menu:
-                if (mAuth.getCurrentUser()!=null) {
-                    callAToast("Log out first!!");
-                } else {
-                    startActivity(new Intent(MainActivity.this, SignIn.class));
-                    finish();
-                }
-                break;
-            case R.id.sign_up_menu:
-                if (mAuth.getCurrentUser()!=null) {
-                    callAToast("Log out first!!");
-                } else {
-                    startActivity(new Intent(MainActivity.this, SignUp.class));
-                    finish();
-                }
-                break;
             case R.id.log_out_menu:
                 if (mAuth.getCurrentUser()!=null) {
                     mAuth.signOut();
@@ -175,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 if (publicKeysList.size()!=0) {
                     publicKeysList.clear();
                 }
@@ -184,8 +171,12 @@ public class MainActivity extends AppCompatActivity {
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Log.i("DS", "ds" + ds);
-                    publicKeysList.add(ds.child("pubKey").getValue().toString());
-                    namesList.add(ds.child("name").getValue().toString());
+                    try {
+                        publicKeysList.add(ds.child("pubKey").getValue().toString());
+                        namesList.add(ds.child("name").getValue().toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 keyAdapter.notifyDataSetChanged();
             }
@@ -214,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Log.i("DSA", "Messages " + ds);
                     String encryptedMessage = ds.child("message").getValue().toString();
                     messagesList.add(decryptMessage(new BigInteger(encryptedMessage)));
                 }
@@ -236,8 +228,9 @@ public class MainActivity extends AppCompatActivity {
         String privateKey = getPrivateKey();
 
         try {
-            byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.toByteArray(), decrypt(privateKey, "helloWorld"));
-            Log.i("DSA", decrypt(privateKey, "helloWorld"));
+            String password = decrypt(privateKey, "helloWorld");
+            Log.i("DSA", "AES Decryption" + password);
+            byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.toByteArray(), password);
             String data = new String(decodeData);
             Log.i("Keys", data);
             return data;
@@ -264,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
 
             String id = databaseReferenceMessage.push().getKey();
             databaseReferenceMessage.child(id).child("message").setValue(data);
-            databaseReferenceMessage.child(id).child("key").setValue(pKey);
 
             Log.i("Keys", "Firebase message updation successful");
 
@@ -278,6 +270,8 @@ public class MainActivity extends AppCompatActivity {
     private String getPrivateKey() {
         return privateKey;
     }
+
+
 
 
     private String decrypt(String data, String password) throws Exception {
