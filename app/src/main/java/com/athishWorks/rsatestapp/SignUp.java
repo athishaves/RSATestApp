@@ -50,6 +50,8 @@ public class SignUp extends AppCompatActivity {
 
     private void declarations() {
 
+        Log.i("Success", "SignUp Activity " + helloWorld() + " " + helloWorld().getBytes().length);
+
         mAuth = FirebaseAuth.getInstance();
 
         if (mAuth.getCurrentUser()!=null) {
@@ -111,9 +113,9 @@ public class SignUp extends AppCompatActivity {
                                     String privateKey = RSAAlgorithm.getPrivateKey(keyMap);
 
                                     Log.i("DSA", "Private key " + privateKey);
-                                    privateKey = encrypt(privateKey, "helloWorld");
+                                    privateKey = encrypt(privateKey, helloWorld());
                                     Log.i("DSA", "Encoded Private key " + privateKey);
-                                    Log.i("DSA", "Decoded Private key " + decrypt(privateKey, "helloWorld"));
+                                    Log.i("DSA", "Decoded Private key " + decrypt(privateKey, helloWorld()));
 
                                     editor.putString(PRIVATE_SP, privateKey);
 

@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void declareVariables() {
 
-        Log.i("Success", "Main Activity " + helloWorld().getBytes().length);
+        Log.i("Success", "Main Activity " + helloWorld() + " " + helloWorld().getBytes().length);
 
         keys = findViewById(R.id.keys);
         messages = findViewById(R.id.messages);
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         privateKey = priKey;
         Log.i("DSA", "Encoded Private Key = " + privateKey);
         try {
-            Log.i("DSA", "Decoded Private Key = " + decrypt(privateKey, "helloWorld"));
+            Log.i("DSA", "Decoded Private Key = " + decrypt(privateKey, helloWorld()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -170,7 +171,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Log.i("DS", "ds" + ds);
                     try {
                         publicKeysList.add(ds.child("pubKey").getValue().toString());
                         namesList.add(ds.child("name").getValue().toString());
@@ -205,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Log.i("DSA", "Messages " + ds);
                     String encryptedMessage = ds.child("message").getValue().toString();
                     messagesList.add(decryptMessage(new BigInteger(encryptedMessage)));
                 }
@@ -228,11 +227,10 @@ public class MainActivity extends AppCompatActivity {
         String privateKey = getPrivateKey();
 
         try {
-            String password = decrypt(privateKey, "helloWorld");
-            Log.i("DSA", "AES Decryption" + password);
+            String password = decrypt(privateKey, helloWorld());
             byte[] decodeData = RSAAlgorithm.encryptByPrivateKey(gotMessage.toByteArray(), password);
             String data = new String(decodeData);
-            Log.i("Keys", data);
+            Log.i("Keys", "Length = " + data.length());
             return data;
         } catch (Exception e) {
             e.printStackTrace();
